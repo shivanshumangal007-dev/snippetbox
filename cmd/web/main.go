@@ -21,22 +21,15 @@ func main() {
 	infolog := log.New(os.Stdout, "INFO:\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stderr, "ERROR: \t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	fileserver := http.FileServer(http.Dir("./ui/static"))
-	mux := http.NewServeMux()
-
-	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errLog,
-		Handler:  mux,
-	}
 	app := &application{
 		errorLog: errLog,
 		infoLog:  infolog,
 	}
-	mux.HandleFunc("/", app.Home)
-	mux.HandleFunc("/snippet/view", app.Snippetview)
-	mux.HandleFunc("/snippet/create", app.Snippetcreate)
-	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errLog,
+		Handler:  app.routes(),
+	}
 
 	infolog.Printf("Starting server on %s", *addr)
 	err := srv.ListenAndServe()
