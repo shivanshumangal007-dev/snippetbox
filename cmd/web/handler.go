@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"snippetbox.shivanshu.in/internal/models"
 )
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +48,17 @@ func (app *application) Snippetview(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	fmt.Fprintf(w, "view your snippet view here \n id => %d", id)
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.servererror(w, err)
+		}
+		return
+	}
+	// Write the snippet data as a plain-text HTTP response body.
+	fmt.Fprintf(w, "%+v", snippet)
 }
 func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 
@@ -55,4 +68,9 @@ func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("cerate your new snippet here \n"))
+	id, err := app.snippets.Insert("first snippet", "lorem ipsum hell you go man i lov eyou hello man", 7)
+	if err != nil {
+		app.servererror(w, err)
+	}
+	app.infoLog.Printf("id of the created snippets is %d", id)
 }
