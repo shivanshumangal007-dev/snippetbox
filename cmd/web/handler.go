@@ -74,3 +74,16 @@ func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 	}
 	app.infoLog.Printf("id of the created snippets is %d", id)
 }
+
+func (app *application) GetSnippets(w http.ResponseWriter, r *http.Request) {
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.servererror(w, err)
+		return
+	}
+
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
+
+	}
+}
