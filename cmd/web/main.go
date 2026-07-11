@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -13,9 +14,10 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -34,10 +36,16 @@ func main() {
 
 	defer db.Close()
 
+	templeteCache , err := newTemplateCache()
+	if err != nil{
+		errLog.Fatal(err)
+	}
+
 	app := &application{
 		errorLog: errLog,
 		infoLog:  infolog,
 		snippets: &models.SnippetModel{DB: db},
+		templateCache: templeteCache,
 	}
 	srv := &http.Server{
 		Addr:     *addr,
