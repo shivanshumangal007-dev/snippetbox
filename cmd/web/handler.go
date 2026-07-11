@@ -28,8 +28,15 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 		app.servererror(w, err)
 		return
 	}
-
-	err = ts.ExecuteTemplate(w, "base", nil)
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.servererror(w, err)
+		return
+	}
+	data := &templateData{
+		Snippets: snippets,
+	}
+	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.errorLog.Print(err.Error())
 		app.servererror(w, err)
@@ -57,8 +64,25 @@ func (app *application) Snippetview(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	// Write the snippet data as a plain-text HTTP response body.
-	fmt.Fprintf(w, "%+v", snippet)
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/view.tmpl.html",
+	}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.servererror(w, err)
+		return
+	}
+	// Create an instance of a templateData struct holding the snippet data.
+	data := &templateData{
+		Snippet: snippet,
+	}
+	// Pass in the templateData struct when executing the template.
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.servererror(w, err)
+	}
 }
 func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 
