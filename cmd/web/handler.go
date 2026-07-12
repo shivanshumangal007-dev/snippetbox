@@ -20,9 +20,8 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 		app.servererror(w, err)
 		return
 	}
-	data := &templateData{
-		Snippets: snippets,
-	}
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
 	app.render(w, http.StatusOK, "home.tmpl.html", data)
 	// w.Write([]byte("hello from home route \n"))
 }
@@ -46,10 +45,11 @@ func (app *application) Snippetview(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
 	// Create an instance of a templateData struct holding the snippet data.
-	app.render(w, http.StatusOK, "view.tmpl.html", &templateData{
-		Snippet: snippet,
-	})
+	app.render(w, http.StatusOK, "view.tmpl.html", data)
 }
 func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 

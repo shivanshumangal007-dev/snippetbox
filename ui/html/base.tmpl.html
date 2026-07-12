@@ -25,6 +25,12 @@
 		<!-- Invoke the navigation template -->
 		{{template "nav" .}}
 		<main>{{template "main" .}}</main>
+
+		<footer>
+			<!-- Update the footer to include the current year -->
+			Powered by <a href="https://golang.org/">Go</a> in {{.CurrentYear}}
+		</footer>
+		<script src="/static/js/main.js" type="text/javascript"></script>
 	</body>
 </html>
 {{end}}
