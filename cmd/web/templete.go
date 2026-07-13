@@ -22,7 +22,7 @@ var functions = template.FuncMap{
 	"humanDate": humanDate,
 }
 
-// this function is to create cache of the data
+// this function is to create cache of the view files .tmpt.html
 func newTemplateCache() (map[string]*template.Template, error) {
 	// Initialize a new map to act as the cache.
 	cache := map[string]*template.Template{}

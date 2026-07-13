@@ -21,7 +21,7 @@ type application struct {
 }
 
 func main() {
-	fmt.Println("hello world how are you man i am good")
+	fmt.Println("hello world how are you man i am good, wbu?")
 	addr := flag.String("addr", ":4000", "addres of the the host")
 	dsn := flag.String("dsn", "dev_user:Shivanshu007@@/snippetbox?parseTime=true", "My sql database source name")
 	flag.Parse()
