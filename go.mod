@@ -4,4 +4,8 @@ go 1.26.4
 
 require github.com/go-sql-driver/mysql v1.10.0
 
-require filippo.io/edwards25519 v1.2.0 // indirect
+require (
+	filippo.io/edwards25519 v1.2.0 // indirect
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/justinas/alice v1.2.0 // indirect
+)

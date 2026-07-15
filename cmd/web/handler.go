@@ -6,15 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/julienschmidt/httprouter"
 	"snippetbox.shivanshu.in/internal/models"
 )
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.servererror(w, err)
@@ -26,8 +22,9 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("hello from home route \n"))
 }
 func (app *application) Snippetview(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -51,21 +48,24 @@ func (app *application) Snippetview(w http.ResponseWriter, r *http.Request) {
 	// Create an instance of a templateData struct holding the snippet data.
 	app.render(w, http.StatusOK, "view.tmpl.html", data)
 }
-func (app *application) Snippetcreate(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodPost {
-		w.Header().Set("allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	w.Write([]byte("cerate your new snippet here \n"))
-	id, err := app.snippets.Insert("first snippet", "lorem ipsum hell you go man i lov eyou hello man", 7)
-	if err != nil {
-		app.servererror(w, err)
-	}
-	app.infoLog.Printf("id of the created snippets is %d", id)
+// response. We'll update this shortly to show a HTML form.
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Display the form for creating a new snippet..."))
 }
 
+func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.servererror(w, err)
+		return
+	}
+	// Update the redirect path to use the new clean URL format.
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
 func (app *application) GetSnippets(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.snippets.Latest()
 	if err != nil {
